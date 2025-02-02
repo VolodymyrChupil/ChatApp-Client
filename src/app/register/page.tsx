@@ -2,7 +2,7 @@
 
 import "./register.scss"
 import Link from "next/link"
-import { useState, useEffect, useRef, use } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import validator from "validator"
 
 export default function Register() {
@@ -76,16 +76,10 @@ export default function Register() {
           setErrMsg(errData?.message?.message)
         } else if (response.status === 400) {
           setErrMsg("Invalid data")
-        } else if (!response.status) {
-          setErrMsg("No Server Response")
         } else {
-          setErrMsg("Login Failed")
+          setErrMsg("Registration Failed")
         }
       } else {
-        setUsername("")
-        setEmail("")
-        setPassword("")
-        setPasswordMatch("")
         setIsSuccess(true)
       }
     } catch (err) {
@@ -99,7 +93,7 @@ export default function Register() {
         <section className="Register__complete">
           <div>
             <p>
-              Success! To complete registration, check your email.{" "}
+              Success! To complete registration, check your email.
               <Link href="/login">Log in</Link>
             </p>
           </div>
@@ -158,6 +152,7 @@ export default function Register() {
                   required
                   placeholder="Password:"
                   maxLength={64}
+                  autoComplete="new-password"
                 />
                 <p
                   className={
@@ -177,6 +172,7 @@ export default function Register() {
                   required
                   placeholder="Repeat password:"
                   maxLength={64}
+                  autoComplete="new-password"
                 />
                 <p
                   className={
