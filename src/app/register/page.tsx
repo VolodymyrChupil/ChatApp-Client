@@ -3,7 +3,7 @@
 import "./register.scss"
 import Link from "next/link"
 import React, { useState, useEffect, useRef } from "react"
-import validator from "validator"
+import { isEmail, isStrongPassword } from "validator"
 
 export default function Register() {
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
@@ -36,11 +36,11 @@ export default function Register() {
   }, [username])
 
   useEffect(() => {
-    setValidEmail(validator.isEmail(email))
+    setValidEmail(isEmail(email))
   }, [email])
 
   useEffect(() => {
-    setValidPassword(validator.isStrongPassword(password, { minLength: 12 }))
+    setValidPassword(isStrongPassword(password, { minLength: 12 }))
     setValidPasswordMatch(password === passwordMatch)
   }, [password, passwordMatch])
 
@@ -71,7 +71,7 @@ export default function Register() {
       if (!response.ok) {
         const errData = await response.json()
         if (response.status === 429) {
-          setErrMsg("Too many requests, try later")
+          setErrMsg("Too many requests, try again later")
         } else if (response.status === 409) {
           setErrMsg(errData?.message?.message)
         } else if (response.status === 400) {
@@ -133,6 +133,7 @@ export default function Register() {
                   required
                   placeholder="Email:"
                   maxLength={64}
+                  autoComplete="email"
                 />
                 <p
                   className={
@@ -181,7 +182,7 @@ export default function Register() {
                       : "offscreen"
                   }
                 >
-                  Passwords is not match
+                  Passwords do not match
                 </p>
               </div>
 

@@ -1,16 +1,17 @@
-.Register {
+.ResetPwd {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   background: #ebebeb;
 
- &__body {
-   padding: 20px 30px;
-   margin: 30px 20px;
-   background: white;
-   position: relative;
- }
+  &__body {
+    padding: 20px 30px;
+    margin: 30px 20px;
+    background: white;
+    position: relative;
+  }
+
   &__title {
     font-size: 1.5rem;
     font-weight: bold;
@@ -49,6 +50,7 @@
     cursor: pointer;
     font-size: 1.2rem;
     font-weight: bold;
+    margin-top: 3px;
     margin-bottom: 17px;
     position: relative;
     padding-left: 40px;
@@ -86,7 +88,6 @@
       left: 16px;
     }
   }
-
   &__button {
     padding: 7px 15px;
     font-size: 1.2rem;
@@ -133,33 +134,43 @@
   }
 
   & .instructions {
-    font-size: 0.95rem;
-    color: #af2a2a;
+    font-size: 1rem;
     padding: 0.25rem;
     position: absolute;
     top: 38px;
     left: 0;
+    color: #af2a2a;
+
+    & a {
+      background-color: #bbeffd;
+      padding: 3px;
+      color: #1a1a1a;
+      &:visited {
+        color: #1a1a1a;
+      }
+    }
   }
 
   & .errmsg {
+    text-align: center;
     background: #ed7591;
     padding: 10px;
     font-size: 1.2rem;
     font-weight: bold;
     width: 100%;
     position: absolute;
-    top: -20px;
+    top: -30px;
     left: 0;
     overflow-wrap: break-word;
   }
 }
 
 @media screen and (max-width: 480px) {
-  .Register {
+  .ResetPwd {
     align-items: flex-start;
     &__body {
       padding: 15px 20px;
-      margin-top: 60px;
+      margin-top: 50px;
     }
     & .errmsg {
       font-size: 1.1rem;
@@ -167,43 +178,3 @@
     }
   }
 }
-
-.Register__complete {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: #ebebeb;
-  height: 100vh;
-
-  div {
-    background: white;
-    text-align: center;
-    padding: 40px 50px;
-    margin: 40px;
-  }
-
-  p {
-    margin: 15px 0;
-    font-size: 1.3rem;
-    line-height: 1.3;
-  }
-
-  a {
-    background-color: #bbeffd;
-    border-bottom: 2px solid #1a1a1a;
-    padding: 2px;
-    margin-left: 5px;
-    color: #1a1a1a;
-    font-size: 1.3rem;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  .Register__complete {
-    div {
-      padding: 10px;
-      margin: 25px;
-    }
-  }
-}
-

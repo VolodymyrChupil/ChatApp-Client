@@ -1,27 +1,28 @@
 "use client"
 
 import Link from "next/link"
-import React, { useContext, useState, useEffect, useRef } from "react"
+import { useContext, useState, useEffect, useRef, FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { AuthContext } from "@/app/context/AuthProvider"
 import { jwtDecode } from "jwt-decode"
+import { JwtPayload } from "@/app/context/Context.interface"
 import "./login.scss"
 
 export default function Login() {
   const router = useRouter()
   const { setAuth } = useContext(AuthContext)
 
-  const [showVerificationCode, setShowVerificationCode] =
-    useState<boolean>(false)
   const [errMsg, setErrMsg] = useState<string>("")
-  const [forgotPassword, setForgotPassword] = useState<boolean>(false)
-
   const [username, setUsername] = useState<string>("")
   const usernameRef = useRef<HTMLInputElement>(null)
 
   const [password, setPassword] = useState<string>("")
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [forgotPassword, setForgotPassword] = useState<boolean>(false)
+
   const [verificationCode, setVerificationCode] = useState<string>("")
+  const [showVerificationCode, setShowVerificationCode] =
+    useState<boolean>(false)
 
   useEffect(() => {
     const timeout = setTimeout(() => usernameRef.current!.focus(), 100)
@@ -30,12 +31,17 @@ export default function Login() {
 
   useEffect(() => {
     setErrMsg("")
-  }, [username, password])
+  }, [username, password, verificationCode])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+
     if (!username && !password) {
       setErrMsg("Invalid data")
+      return
+    }
+    if (showVerificationCode && !verificationCode) {
+      setErrMsg("Enter verification code")
       return
     }
 
@@ -61,9 +67,11 @@ export default function Login() {
 
       if (!response.ok) {
         if (response.status === 429) {
-          setErrMsg("Too many requests, try later")
+          setErrMsg("Too many requests, try again later")
+        } else if (response.status === 408) {
+          setErrMsg("Verification code expired")
         } else if (response.status === 401) {
-          setErrMsg("Username or password incorrect")
+          setErrMsg("Invalid credentials")
           setForgotPassword(true)
         } else if (response.status === 400) {
           setErrMsg(data?.message?.message)
@@ -71,8 +79,7 @@ export default function Login() {
           setErrMsg("Login Failed")
         }
       } else {
-        //@ts-ignore
-        const { username, userId } = jwtDecode(data.accessToken)
+        const { username, userId } = jwtDecode<JwtPayload>(data.accessToken)
         setAuth({ token: data.accessToken, username, userId })
         router.push("/")
       }
@@ -86,18 +93,26 @@ export default function Login() {
       {showVerificationCode ? (
         <section className="Login">
           <div className="Login__body">
-            <h1>Verification code</h1>
-            <p>We send verification code on your email.</p>
+            <p className={errMsg ? "errmsg" : "offscreen"}>{errMsg}</p>
+            <p style={{ fontSize: "1.3rem" }}>
+              We send verification code on your email.
+            </p>
             <form onSubmit={handleSubmit}>
               <input
                 className="Login__input"
                 type="number"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value)}
+                onChange={(e) => {
+                  verificationCode.length < 6
+                    ? setVerificationCode(e.target.value)
+                    : setVerificationCode(e.target.value.slice(0, 6))
+                }}
                 placeholder="Enter code:"
                 required
               />
-              <button>Submit</button>
+              <button className="Login__button" disabled={!verificationCode}>
+                Submit
+              </button>
             </form>
           </div>
         </section>
@@ -105,7 +120,6 @@ export default function Login() {
         <section className="Login">
           <div className="Login__body">
             <p className={errMsg ? "errmsg" : "offscreen"}>{errMsg}</p>
-            <p>{errMsg}</p>
             <h1 className="Login__title">Login</h1>
             <form onSubmit={handleSubmit} noValidate autoCorrect="off">
               <input
@@ -132,7 +146,7 @@ export default function Login() {
                 />
 
                 <p className={forgotPassword ? "instructions" : "offscreen"}>
-                  Forgot password? <Link href="/reset-pwd">Reset:</Link>
+                  Forgot password? <Link href="/reset-pwd">Reset</Link>
                 </p>
               </div>
 
@@ -148,16 +162,15 @@ export default function Login() {
 
               <button
                 className="Login__button"
-                disabled={!username && !password}
+                disabled={!username || !password}
               >
                 Submit
               </button>
-
-              <p className="Login__msg">
-                Don't have an account? <Link href="/register">Register:</Link>
-              </p>
-              <Link href="/">Home</Link>
             </form>
+
+            <p className="Login__msg">
+              Don't have an account? <Link href="/register">Register:</Link>
+            </p>
           </div>
         </section>
       )}
